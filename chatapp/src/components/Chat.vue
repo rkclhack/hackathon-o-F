@@ -25,20 +25,20 @@ onMounted(() => {
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
   // 入力欄を初期化
-  socket.emit("publishEvent", chatContent.value)
+  socket.emit("publishEvent", `${userName.value}さん: ${chatContent.value}`)
   chatContent.value=""
   
 }
 
 // 退室メッセージをサーバに送信する
 const onExit = () => {
-  socket.emit("exitEvent", "◯◯さんが退出しました。")
+  socket.emit("exitEvent", `${userName.value}さんが退出しました。`)
 }
 
 // メモを画面上に表示する
 const onMemo = () => {
   // メモの内容を表示
-  chatList.unshift(`${userName}さんのメモ: ${chatContent.value}`)
+  chatList.unshift(`${userName.value}さんのメモ: ${chatContent.value}`)
   // 入力欄を初期化
   chatContent.value=""
 
@@ -67,17 +67,17 @@ const onReceivePublish = (data) => {
 const registerSocketEvent = () => {
   // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
-    chatList.unshift(`${userName}さんが入室しました。`)
+    onReceiveEnter(data)
   })
 
   // 退室イベントを受け取ったら実行
   socket.on("exitEvent", (data) => {
-    chatList.unshift(`${userName}さんが退出しました。`)
+    onReceiveExit(data)
   })
 
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
-    chatList.unshift(`${userName}さん: ${data}`)
+    onReceivePublish(data)
   })
 }
 // #endregion
