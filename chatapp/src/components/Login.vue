@@ -23,7 +23,7 @@ const onEnter = () => {
   if (inputUserName.value.trim().length !== 0) { // ユーザ名が入力されている場合
     // 入室メッセージを送信
     const message = `${inputUserName.value}さんが入室しました。`;
-    socket.broadcast.emit("enterEvent", message);
+    socket.emit("enterEvent", message);
     // 全体で使用するnameに入力されたユーザー名を格納
     userName.value = inputUserName;
     // チャット画面へ遷移
