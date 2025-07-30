@@ -22,9 +22,8 @@ const onEnter = () => {
   // ユーザー名が入力されているかチェック
   if (inputUserName.value.trim().length !== 0) { // ユーザ名が入力されている場合
     // 入室メッセージを送信
-    const message = `${inputUserName}さんが入室しました。`;
-    // router.push({ message: message });
-    socket.emit("sendMessageEvent", message);
+    const message = `${inputUserName.value}さんが入室しました。`;
+    socket.broadcast.emit("enterEvent", message);
     // 全体で使用するnameに入力されたユーザー名を格納
     userName.value = inputUserName;
     // チャット画面へ遷移
@@ -43,7 +42,7 @@ const onEnter = () => {
       <p>ユーザー名</p>
       <input type="text" class="user-name-text" v-model="inputUserName"/>
     </div>
-    <button type="button" @click="onEnter" class="button-normal">入室する</button>
+    <v-btn type="button" @click="onEnter" class="button-normal">入室する</v-btn>
   </div>
 </template>
 
