@@ -20,13 +20,17 @@ const inputUserName = ref("")
 // 入室メッセージをクライアントに送信する
 const onEnter = () => {
   // ユーザー名が入力されているかチェック
-
-  // 入室メッセージを送信
-
-  // 全体で使用するnameに入力されたユーザー名を格納
-
-  // チャット画面へ遷移
-  router.push({ name: "chat" })
+  if (inputUserName.value.trim().length !== 0) { // ユーザ名が入力されている場合
+    // 入室メッセージを送信
+    const message = `${inputUserName.value}さんが入室しました。`;
+    socket.broadcast.emit("enterEvent", message);
+    // 全体で使用するnameに入力されたユーザー名を格納
+    userName.value = inputUserName;
+    // チャット画面へ遷移
+    router.push({ name: "chat" });
+  } else { // ユーザ名が入力されていない場合
+    alert("ユーザ名を入力してください。");
+  }
 }
 // #endregion
 </script>
@@ -36,9 +40,9 @@ const onEnter = () => {
     <h1 class="text-h3 font-weight-medium">Vue.js Chat サンプル</h1>
     <div class="mt-10">
       <p>ユーザー名</p>
-      <input type="text" class="user-name-text" />
+      <input type="text" class="user-name-text" v-model="inputUserName"/>
     </div>
-    <button type="button" @click="onEnter" class="button-normal">入室する</button>
+    <v-btn type="button" @click="onEnter" class="button-normal">入室する</v-btn>
   </div>
 </template>
 
