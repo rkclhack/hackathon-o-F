@@ -142,7 +142,7 @@ const registerSocketEvent = () => {
 
 <template>
   <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
+    <h1 class="text-h3 font-weight-medium">タスカル</h1>
     <div class="content-all">
     <div class="content-container">
       <!-- チャット部分 -->
@@ -195,12 +195,16 @@ const registerSocketEvent = () => {
 <style scoped>
 .link {
   text-decoration: none;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .content-all {
   display: flex;
   flex-direction: row;
-  gap: 10vw
+  gap: 10vw;
+  margin-top: 60px;
 }
 
 .content-container {
@@ -208,6 +212,8 @@ const registerSocketEvent = () => {
   flex-direction: column;
   gap: 40px;
   margin-top: 20px;
+  flex: 1;
+  max-width: 50%;
 }
 
 .chat-section {
