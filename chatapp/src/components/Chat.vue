@@ -420,6 +420,19 @@ const registerSocketEvent = () => {
 .task-item.me:hover {
   background-color: #5ab521;
 }
+
+.hint {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #667eea;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  z-index: 1000;
+}
+
 .task-filter {
   font-size: 0.9rem;
 }
