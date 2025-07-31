@@ -229,7 +229,14 @@ const registerSocketEvent = () => {
           <span class="task-what">内容</span>
         </div>
         <div v-if="hideFinishedTasks">
-          <div class="task-item" v-for="(task, index) in notFinishedTaskList" :key="index">
+          <div
+            class="task-item"
+            v-for="(task, index) in notFinishedTaskList"
+            :key="index"
+            :class="{
+              overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+              me: task.who === userName}"
+          >
            <input type="checkbox" v-model="task.finished">
            <span class="task-who">{{ task.who }}</span>
            <span class="task-when">{{ task.when }}</span>
@@ -237,7 +244,14 @@ const registerSocketEvent = () => {
           </div>
         </div>
         <div v-else>
-          <div class="task-item" v-for="(task, index) in taskList" :key="index">
+          <div
+            class="task-item"
+            v-for="(task, index) in taskList"
+            :key="index"
+            :class="{
+              overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+              me: task.who === userName}"
+          >
            <input type="checkbox" v-model="task.finished">
            <span class="task-who">{{ task.who }}</span>
            <span class="task-when">{{ task.when }}</span>
