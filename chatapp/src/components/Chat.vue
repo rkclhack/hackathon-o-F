@@ -50,14 +50,6 @@ const onPublish = () => {
       what: chatContent.value
     })
   }
-  // タスクリストに追加
-  if (toWho.value || selectedDate.value) {
-    taskList.unshift({
-      who: toWho.value,
-      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
-      what: chatContent.value
-    })
-  }
   // 入力欄を初期化
   chatContent.value=""
   toWho.value=""
@@ -178,7 +170,7 @@ const registerSocketEvent = () => {
           <span class="task-when">期限</span>
           <span class="task-what">内容</span>
         </div>
-        <div class="task-item" v-for="(task, index) in taskList" :key="index">
+        <div class="task-item" v-for="(task, index) in taskList" :key="index" :class="{ 'overdue': task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date() }">
           <span class="task-who">{{ task.who }}</span>
           <span class="task-when">{{ task.when }}</span>
           <span class="task-what">{{ task.what }}</span>
@@ -309,5 +301,13 @@ const registerSocketEvent = () => {
   border: 1px solid #000;
   border-radius: 5px;
   padding: 3px;
+}
+
+.task-item.overdue {
+  color: #f44336;
+}
+
+.task-item.overdue:hover {
+  color: #d32f2f;
 }
 </style>
