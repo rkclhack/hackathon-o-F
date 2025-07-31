@@ -30,7 +30,7 @@ const onEnter = () => {
     // チャット画面へ遷移
     router.push({ name: "chat" });
   } else { // ユーザ名が入力されていない場合
-    alert("ユーザ名を入力してください。");
+    alert("名前を入力してください。");
   }
 }
 // #endregion
@@ -41,7 +41,7 @@ const onEnter = () => {
     <h1 class="text-h3 font-weight-medium">タスカル</h1>
     <v-form @submit.prevent="onEnter">
       <div class="mt-10">
-        <v-text-field clearable label="UserName" variant="outlined" class="user-name-text" v-model="inputUserName" style="width: 200px; display: inline-block; padding: 10px;"/>
+        <v-text-field clearable label="名前" variant="outlined" class="user-name-text" v-model="inputUserName" style="width: 200px; display: inline-block; padding: 10px;"/>
       </div>
         <v-btn type="submit" @click="onEnter"  class="button-normal">入室する</v-btn>
     </v-form>
