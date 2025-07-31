@@ -90,8 +90,7 @@ const onPublish = () => {
   if (toWho.value || selectedDate.value) {
     socket.emit("publishTask", {
       who: toWho.value,
-      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
-      what: chatContent.value
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : selectedDate.value.replace("*",""),
     })
   }
   // タスクリストに追加
