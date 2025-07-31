@@ -43,7 +43,7 @@ const onEnter = () => {
       <div class="mt-10">
         <v-text-field clearable label="名前" variant="outlined" class="user-name-text" v-model="inputUserName" style="width: 200px; display: inline-block; padding: 10px;"/>
       </div>
-        <v-btn type="submit" @click="onEnter"  class="button-normal">入室する</v-btn>
+        <v-btn type="submit" class="button-normal">入室する</v-btn>
     </v-form>
     
     <v-footer
