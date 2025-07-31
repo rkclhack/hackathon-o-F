@@ -9,7 +9,7 @@ const userName = inject("userName")
 // #region local variable
 const socket = socketManager.getInstance()
 // #endregion
-
+const minDateTime = ref(new Date().toISOString().slice(0, 16))
 // #region reactive variable
 const chatContent = ref("")
 const taskContent = ref("")
@@ -40,7 +40,9 @@ onMounted(() => {
 // #region browser event handler
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-  
+  if(!chatContent.value) {
+    return
+  }
   socket.emit("publishEvent", `${userName.value}さん: ${chatContent.value}`)
   //いつの誰に向けてのメッセージかを追加
   if (toWho.value || selectedDate.value) {
@@ -118,7 +120,6 @@ const registerSocketEvent = () => {
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data)
-    console.log(data)
   })
 
   // タスク追加イベントを受け取ったら実行
@@ -158,7 +159,7 @@ const registerSocketEvent = () => {
           class="who-and-When-Input"
           v-model="toWho"
           placeholder="誰に">
-        <input class="who-and-When-Input" type="datetime-local" v-model="selectedDate">
+        <input class="who-and-When-Input" type="datetime-local" v-model="selectedDate" :min="minDateTime">
       </div>
         <div class="mt-5" v-if="chatList.length !== 0">
           <ul>
