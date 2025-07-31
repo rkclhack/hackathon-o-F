@@ -12,7 +12,13 @@ const socket = socketManager.getInstance()
 
 // #region reactive variable
 const chatContent = ref("")
+const taskContent = ref("")
 const chatList = reactive([])
+const taskList = reactive([])
+
+const toWho = ref("")
+
+const selectedDate = ref("")
 // #endregion
 
 // #region lifecycle
@@ -94,6 +100,14 @@ const registerSocketEvent = () => {
         <button class="button-normal" @click="onPublish">投稿</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
+      <div class="mt-5">
+        <input
+          class="who-and-When-Input"
+          :value="toWho"
+          @input="event => text = event.target.value"
+          placeholder="誰に">
+        <input class="who-and-When-Input" type="datetime-local" v-model="selectedDate">
+      </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
           <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
@@ -128,5 +142,11 @@ const registerSocketEvent = () => {
 .button-exit {
   color: #000;
   margin-top: 8px;
+}
+
+.who-and-When-Input {
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 3px;
 }
 </style>
