@@ -38,9 +38,30 @@ onMounted(() => {
 // #region browser event handler
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-  // 入力欄を初期化
+  
   socket.emit("publishEvent", `${userName.value}さん: ${chatContent.value}`)
+  //いつの誰に向けてのメッセージかを追加
+  if (toWho.value || selectedDate.value) {
+    socket.emit("publishTask", {
+      who: toWho.value,
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
+      what: chatContent.value
+    })
+  }
+  // 投稿内容を画面上に表示
+  chatList.unshift(`${userName.value}さん: ${chatContent.value}`)
+  // タスクリストに追加
+  if (toWho.value || selectedDate.value) {
+    taskList.unshift({
+      who: toWho.value,
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
+      what: chatContent.value
+    })
+  }
+  // 入力欄を初期化
   chatContent.value=""
+  toWho.value=""
+  selectedDate.value=""
   
 }
 
@@ -124,8 +145,7 @@ const registerSocketEvent = () => {
         <div class="mt-5">
         <input
           class="who-and-When-Input"
-          :value="toWho"
-          @input="event => text = event.target.value"
+          v-model="toWho"
           placeholder="誰に">
         <input class="who-and-When-Input" type="datetime-local" v-model="selectedDate">
       </div>
