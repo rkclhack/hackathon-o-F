@@ -24,7 +24,9 @@ const taskList = reactive([
   { who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
   { who: "佐藤さん", when: "2025/07/31 14:30", what: "会議準備" },
   { who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
-  { who: "", when: "2025/08/01 09:00", what: "レビュー実施" }
+  { who: "", when: "2025/08/01 09:00", what: "レビュー実施" },
+  { who: "小林さん", when: "2025/06/31 10:00", what: "資料作成" },
+  { who: "植木さん", when: "2025/07/15 08:00", what: "会議準備" }
 ])
 
 // #endregion
@@ -103,8 +105,19 @@ const registerSocketEvent = () => {
   // タスク追加イベントを受け取ったら実行
   socket.on("publishTask", (data) => {
     onReceiveTask(data)
+    sortByWhen()
   })
 }
+
+  // タスクリストをソート
+  const sortByWhen = () => {
+    // 期限を昇順にソート
+    this.taskList.sort( (a, b) => {
+      if(a.when < b.when) return -1;
+      if(a.when > b.when) return 1;
+      return 0;
+    });
+  }
 // #endregion
 </script>
 
