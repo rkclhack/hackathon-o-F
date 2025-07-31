@@ -305,7 +305,7 @@ const registerSocketEvent = () => {
 
 .task-section {
   flex: 1;
-  min-width: 500px;
+  min-width: 600px;
 }
 
 .task-title {
