@@ -37,7 +37,7 @@ const onEnter = () => {
 </script>
 
 <template>
-  <div style="text-align: center;max-height: 100vh;">
+  <div style="text-align: center;max-height: 100vh;" class="pt-10">
     <h1 class="text-h3 font-weight-medium">タスカル</h1>
     <v-form @submit.prevent="onEnter">
       <div class="mt-10">
