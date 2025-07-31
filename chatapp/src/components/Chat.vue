@@ -160,7 +160,7 @@ const registerSocketEvent = () => {
 </script>
 
 <template>
-  <div class="mx-auto my-5 px-4">
+  <div class="mx-auto my-5 px-10">
     <h1 class="text-h3 font-weight-medium">タスカル</h1>
     <div class="content-all">
     <div class="content-container">
