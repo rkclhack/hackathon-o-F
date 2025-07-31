@@ -10,6 +10,24 @@ const userName = inject("userName")
 const socket = socketManager.getInstance()
 // #endregion
 const minDateTime = ref(new Date().toISOString().slice(0, 16))
+
+function getJstDatetimeLocal() {
+  const now = new Date()
+  now.setSeconds(0)
+  now.setMilliseconds(0)
+
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hour = String(now.getHours()).padStart(2, '0')
+  const minute = String(now.getMinutes()).padStart(2, '0')
+
+  return `${year}-${month}-${day}T${hour}:${minute}`
+}
+
+const jstDatetime = getJstDatetimeLocal()
+console.log(jstDatetime) // 例: 2025-07-31T16:13
+
 // #region reactive variable
 const chatContent = ref("")
 const taskContent = ref("")
@@ -43,6 +61,11 @@ const onPublish = () => {
   if(!chatContent.value) {
     return
   }
+  if(selectedDate.value < jstDatetime) {
+    alert("現在時刻以降を選択してください")
+    return
+  }
+  console.log(selectedDate.value)
   socket.emit("publishEvent", `${userName.value}さん: ${chatContent.value}`)
   //いつの誰に向けてのメッセージかを追加
   if (toWho.value || selectedDate.value) {
