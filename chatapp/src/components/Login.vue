@@ -19,6 +19,7 @@ const inputUserName = ref("")
 // #region browser event handler
 // 入室メッセージをクライアントに送信する
 const onEnter = () => {
+  console.log("Enterが押されました")
   // ユーザー名が入力されているかチェック
   if (inputUserName.value.trim().length !== 0) { // ユーザ名が入力されている場合
     // 入室メッセージを送信
@@ -36,20 +37,27 @@ const onEnter = () => {
 </script>
 
 <template>
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Vue.js Chat サンプル</h1>
-    <div class="mt-10">
-      <p>ユーザー名</p>
-      <input type="text" class="user-name-text" v-model="inputUserName"/>
-    </div>
-    <v-btn type="button" @click="onEnter" class="button-normal">入室する</v-btn>
+  <div style="text-align: center;min-height: 100vh; position: relative;">
+    <h1 class="text-h3 font-weight-medium">タスカル</h1>
+    <v-form @submit.prevent="onEnter">
+      <div class="mt-10">
+        <v-text-field clearable label="UserName" variant="outlined" class="user-name-text" v-model="inputUserName" style="width: 200px; display: inline-block; padding: 10px;"/>
+      </div>
+        <v-btn type="submit" @click="onEnter"  class="button-normal">入室する</v-btn>
+    </v-form>
+    
+    <v-footer
+    class="text-center py-4"
+    color="blue-grey-darken-3"
+    dark
+    style="position: absolute; bottom: 0; width: 100%;"
+    >
+      <v-container class="px-0">
+        <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
+      </v-container>
+    </v-footer>
   </div>
 </template>
 
 <style scoped>
-.user-name-text {
-  width: 200px;
-  border: 1px solid #888;
-  margin-bottom: 16px;
-}
 </style>
