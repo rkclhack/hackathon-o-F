@@ -61,23 +61,17 @@ const onPublish = () => {
   if(!chatContent.value) {
     return
   }
-  if(selectedDate.value < jstDatetime) {
-    alert("現在時刻以降を選択してください")
-    return
+  if (selectedDate.value) {
+    if(selectedDate.value < jstDatetime) {
+      alert("現在時刻以降を選択してください")
+      return
+    }
   }
   console.log(selectedDate.value)
   socket.emit("publishEvent", `${userName.value}さん: ${chatContent.value}`)
   //いつの誰に向けてのメッセージかを追加
   if (toWho.value || selectedDate.value) {
     socket.emit("publishTask", {
-      who: toWho.value,
-      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
-      what: chatContent.value
-    })
-  }
-  // タスクリストに追加
-  if (toWho.value || selectedDate.value) {
-    taskList.unshift({
       who: toWho.value,
       when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
       what: chatContent.value
