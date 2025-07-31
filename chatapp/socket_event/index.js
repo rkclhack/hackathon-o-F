@@ -16,6 +16,6 @@ export default (io, socket) => {
 
   // タスクメッセージを送信する
   socket.on("publishTask", (data) => {
-    socket.broadcast.emit("publishTask", data)
+    io.sockets.emit("publishTask", data)
   })
 }
