@@ -73,7 +73,7 @@ const onPublish = () => {
   if (toWho.value || selectedDate.value) {
     socket.emit("publishTask", {
       who: toWho.value,
-      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : selectedDate.value.replace("*",""),
       what: chatContent.value
     })
   }
@@ -151,6 +151,9 @@ const registerSocketEvent = () => {
   const sortByWhen = () => {
     // 期限を昇順にソート
     taskList.sort( (a, b) => {
+      if(a.when === "" && b.when !== "") return 1;
+      if(a.when !== "" && b.when === "") return -1;
+      if(a.when === "" && b.when === "") return 0;
       if(a.when < b.when) return -1;
       if(a.when > b.when) return 1;
       return 0;
