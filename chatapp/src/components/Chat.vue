@@ -37,6 +37,11 @@ const toWho = ref("")
 
 const selectedDate = ref("")
 
+// ヒント表示用（2行だけ追加）
+const hintMessage = ref("")
+const showHint = ref(false)
+
+
 // タスクリスト用の変数を追加
 const taskList = reactive([
   { who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
@@ -59,6 +64,9 @@ onMounted(() => {
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
   if(!chatContent.value) {
+    hintMessage.value = "投稿内容を入力してください"
+    showHint.value = true
+    setTimeout(() => showHint.value = false, 3000)
     return
   }
   if (selectedDate.value) {
@@ -167,6 +175,7 @@ const registerSocketEvent = () => {
 <template>
   <div class="mx-auto my-5 px-10">
     <h1 class="text-h3 font-weight-medium">タスカル</h1>
+    <div v-if="showHint" class="hint">{{ hintMessage }}</div>
     <div class="content-all">
     <div class="content-container">
       <!-- チャット部分 -->
@@ -365,5 +374,17 @@ const registerSocketEvent = () => {
 
 .task-item.me:hover {
   background-color: #5ab521;
+}
+
+.hint {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #667eea;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  z-index: 1000;
 }
 </style>
