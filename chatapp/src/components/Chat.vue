@@ -196,7 +196,14 @@ const registerSocketEvent = () => {
           <span class="task-when">期限</span>
           <span class="task-what">内容</span>
         </div>
-        <div class="task-item" v-for="(task, index) in taskList" :key="index" :class="{ 'overdue': task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date() }">
+        <div
+          class="task-item"
+          v-for="(task, index) in taskList"
+          :key="index"
+          :class="{
+            overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+            me: task.who === userName}"
+        >
           <span class="task-who">{{ task.who }}</span>
           <span class="task-when">{{ task.when }}</span>
           <span class="task-what">{{ task.what }}</span>
@@ -335,5 +342,13 @@ const registerSocketEvent = () => {
 
 .task-item.overdue:hover {
   color: #d32f2f;
+}
+
+.task-item.me {
+  background-color: #7ff436;
+}
+
+.task-item.me:hover {
+  background-color: #5ab521;
 }
 </style>
