@@ -432,6 +432,19 @@ const registerSocketEvent = () => {
   z-index: 1000;
 }
 
+
+.mx-auto {
+  position: relative;
+}
+
+.chat-section p {
+  position: absolute;
+  top: 0;
+  right: 100px;
+  margin: 8px 0;
+  color: #333;
+  font-weight: 500;
+
 .task-filter {
   font-size: 0.9rem;
 }
