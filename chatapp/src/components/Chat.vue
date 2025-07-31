@@ -48,17 +48,17 @@ const onMemo = () => {
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  chatList.push()
+  chatList.push(data)
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
 const onReceiveExit = (data) => {
-  chatList.push()
+  chatList.push(data)
 }
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  chatList.push()
+  chatList.push(data)
 }
 // #endregion
 
@@ -78,6 +78,7 @@ const registerSocketEvent = () => {
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data)
+    console.log(data)
   })
 }
 // #endregion

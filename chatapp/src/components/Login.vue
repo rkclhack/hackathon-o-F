@@ -25,7 +25,7 @@ const onEnter = () => {
     const message = `${inputUserName.value}さんが入室しました。`;
     socket.emit("enterEvent", message);
     // 全体で使用するnameに入力されたユーザー名を格納
-    userName.value = inputUserName;
+    userName.value = inputUserName.value;
     // チャット画面へ遷移
     router.push({ name: "chat" });
   } else { // ユーザ名が入力されていない場合
