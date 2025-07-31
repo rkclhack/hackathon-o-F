@@ -74,6 +74,11 @@ const onReceiveExit = (data) => {
 const onReceivePublish = (data) => {
   chatList.unshift(data)
 }
+
+// サーバから受信したタスクを画面上に表示する
+const onReceiveTask = (data) => {
+  taskList.unshift(data)
+}
 // #endregion
 
 // #region local methods
@@ -93,6 +98,11 @@ const registerSocketEvent = () => {
   socket.on("publishEvent", (data) => {
     onReceivePublish(data)
     console.log(data)
+  })
+
+  // タスク追加イベントを受け取ったら実行
+  socket.on("publishTask", (data) => {
+    onReceiveTask(data)
   })
 }
 // #endregion
