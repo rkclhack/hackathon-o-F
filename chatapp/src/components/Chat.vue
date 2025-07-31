@@ -221,6 +221,16 @@ const registerSocketEvent = () => {
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
   </div>
+  <v-footer
+    class="text-center py-4"
+    color="blue-grey-darken-3"
+    dark
+    style="position: absolute; bottom: 0; width: 100%;"
+    >
+      <v-container class="px-0">
+        <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
+      </v-container>
+    </v-footer>
 </template>
 
 <style scoped>
