@@ -111,6 +111,7 @@ const registerSocketEvent = () => {
 <template>
   <div class="mx-auto my-5 px-4">
     <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
+    <div class="content-all">
     <div class="content-container">
       <!-- チャット部分 -->
       <div class="chat-section">
@@ -120,13 +121,7 @@ const registerSocketEvent = () => {
           <button class="button-normal" @click="onPublish">投稿</button>
           <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
         </div>
-        <div class="mt-5" v-if="chatList.length !== 0">
-          <ul>
-            <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
-          </ul>
-        </div>
-      </div>
-      <div class="mt-5">
+        <div class="mt-5">
         <input
           class="who-and-When-Input"
           :value="toWho"
@@ -134,28 +129,31 @@ const registerSocketEvent = () => {
           placeholder="誰に">
         <input class="who-and-When-Input" type="datetime-local" v-model="selectedDate">
       </div>
-      <div class="mt-5" v-if="chatList.length !== 0">
-        <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
-        </ul>
-
-      <!-- タスクリスト部分 -->
-      <div class="task-section">
-        <h2 class="task-title">タスク</h2>
-        <div class="task-list">
-          <div class="task-header">
-            <span class="task-who">担当者</span>
-            <span class="task-when">期限</span>
-            <span class="task-what">内容</span>
-          </div>
-          <div class="task-item" v-for="(task, index) in taskList" :key="index">
-            <span class="task-who">{{ task.who }}</span>
-            <span class="task-when">{{ task.when }}</span>
-            <span class="task-what">{{ task.what }}</span>
-          </div>
+        <div class="mt-5" v-if="chatList.length !== 0">
+          <ul>
+            <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
+          </ul>
         </div>
       </div>
     </div>
+
+      <!-- タスクリスト部分 -->
+    <div class="task-section">
+      <h2 class="task-title">タスク</h2>
+      <div class="task-list">
+        <div class="task-header">
+          <span class="task-who">担当者</span>
+          <span class="task-when">期限</span>
+          <span class="task-what">内容</span>
+        </div>
+        <div class="task-item" v-for="(task, index) in taskList" :key="index">
+          <span class="task-who">{{ task.who }}</span>
+          <span class="task-when">{{ task.when }}</span>
+          <span class="task-what">{{ task.what }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
@@ -168,8 +166,15 @@ const registerSocketEvent = () => {
   text-decoration: none;
 }
 
+.content-all {
+  display: flex;
+  flex-direction: row;
+  gap: 10vw
+}
+
 .content-container {
   display: flex;
+  flex-direction: column;
   gap: 40px;
   margin-top: 20px;
 }
