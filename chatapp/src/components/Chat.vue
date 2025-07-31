@@ -12,7 +12,13 @@ const socket = socketManager.getInstance()
 
 // #region reactive variable
 const chatContent = ref("")
+const taskContent = ref("")
 const chatList = reactive([])
+
+const toWho = ref("")
+
+const selectedDate = ref("")
+
 // タスクリスト用の変数を追加
 const taskList = reactive([
   { who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
@@ -20,6 +26,7 @@ const taskList = reactive([
   { who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
   { who: "", when: "2025/08/01 09:00", what: "レビュー実施" }
 ])
+
 // #endregion
 
 // #region lifecycle
@@ -109,6 +116,18 @@ const registerSocketEvent = () => {
           </ul>
         </div>
       </div>
+      <div class="mt-5">
+        <input
+          class="who-and-When-Input"
+          :value="toWho"
+          @input="event => text = event.target.value"
+          placeholder="誰に">
+        <input class="who-and-When-Input" type="datetime-local" v-model="selectedDate">
+      </div>
+      <div class="mt-5" v-if="chatList.length !== 0">
+        <ul>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
+        </ul>
 
       <!-- タスクリスト部分 -->
       <div class="task-section">
@@ -231,5 +250,11 @@ const registerSocketEvent = () => {
 .button-exit {
   color: #000;
   margin-top: 8px;
+}
+
+.who-and-When-Input {
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 3px;
 }
 </style>
