@@ -36,22 +36,29 @@ const chatList = reactive([])
 const toWho = ref("")
 
 const selectedDate = ref("")
-
 // ヒント表示用（2行だけ追加）
 const hintMessage = ref("")
 const showHint = ref(false)
 
+let hideFinishedTasks = ref()
 
 // タスクリスト用の変数を追加
 const taskList = reactive([
-  { who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
-  { who: "佐藤さん", when: "2025/07/31 14:30", what: "会議準備" },
-  { who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
-  { who: "", when: "2025/08/01 09:00", what: "レビュー実施" },
-  { who: "小林さん", when: "2025/06/31 10:00", what: "資料作成" },
-  { who: "植木さん", when: "2025/07/15 08:00", what: "会議準備" }
+  { finished: false, who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
+  { finished: false, who: "佐藤さん", when: "2025/07/31 14:30", what: "会議準備" },
+  { finished: false, who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
+  { finished: false, who: "", when: "2025/08/01 09:00", what: "レビュー実施" },
+  { finished: false, who: "小林さん", when: "2025/06/31 10:00", what: "資料作成" },
+  { finished: false, who: "植木さん", when: "2025/07/15 08:00", what: "会議準備" }
 ])
 
+// 未完了タスクリスト
+const notFinishedTaskList = reactive([])
+
+// 未完了タスクを該当リストに追加
+const addNotFinishedTask = () => {
+  notFinishedTaskList.splice(0, notFinishedTaskList.length, ...taskList.filter(task => !task.finished))
+}
 // #endregion
 
 // #region lifecycle
@@ -84,6 +91,13 @@ const onPublish = () => {
     socket.emit("publishTask", {
       who: toWho.value,
       when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : selectedDate.value.replace("*",""),
+    })
+  }
+  // タスクリストに追加
+  if (toWho.value || selectedDate.value) {
+    taskList.unshift({
+      who: toWho.value,
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
       what: chatContent.value
     })
   }
@@ -91,7 +105,6 @@ const onPublish = () => {
   chatContent.value=""
   toWho.value=""
   selectedDate.value=""
-  
 }
 
 // 退室メッセージをサーバに送信する
@@ -105,7 +118,6 @@ const onMemo = () => {
   chatList.unshift(`${userName.value}さんのメモ: ${chatContent.value}`)
   // 入力欄を初期化
   chatContent.value=""
-
 }
 // #endregion
 
@@ -203,43 +215,63 @@ const registerSocketEvent = () => {
 
       <!-- タスクリスト部分 -->
     <div class="task-section">
-      <h2 class="task-title">タスク</h2>
+        <h2 class="task-title">タスク</h2>
+        <label>
+          <input type="checkbox" v-model="hideFinishedTasks" @click="addNotFinishedTask">
+          未完了タスクのみを表示
+        </label>
       <div class="task-list">
         <div class="task-header">
+          <span class="task-finished">完了</span>
           <span class="task-who">担当者</span>
           <span class="task-when">期限</span>
           <span class="task-what">内容</span>
         </div>
-        <div
-          class="task-item"
-          v-for="(task, index) in taskList"
-          :key="index"
-          :class="{
-            overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
-            me: task.who === userName}"
-        >
-          <span class="task-who">{{ task.who }}</span>
-          <span class="task-when">{{ task.when }}</span>
-          <span class="task-what">{{ task.what }}</span>
+        <div v-if="hideFinishedTasks">
+          <div
+            class="task-item"
+            v-for="(task, index) in notFinishedTaskList"
+            :key="index"
+            :class="{
+              overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+              me: task.who === userName}"
+          >
+           <input type="checkbox" v-model="task.finished">
+           <span class="task-who">{{ task.who }}</span>
+           <span class="task-when">{{ task.when }}</span>
+           <span class="task-what">{{ task.what }}</span>
+          </div>
+        </div>
+        <div v-else>
+          <div
+            class="task-item"
+            v-for="(task, index) in taskList"
+            :key="index"
+            :class="{
+              overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+              me: task.who === userName}"
+          >
+           <input type="checkbox" v-model="task.finished">
+           <span class="task-who">{{ task.who }}</span>
+           <span class="task-when">{{ task.when }}</span>
+           <span class="task-what">{{ task.what }}</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+    </div>
+    </div>
 
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
-  </div>
-  <v-footer
-    class="text-center py-4"
-    color="blue-grey-darken-3"
-    dark
-    style="position: absolute; bottom: 0; width: 100%;"
-    >
-      <v-container class="px-0">
-        <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
-      </v-container>
-    </v-footer>
+
+  <v-footer class="text-center py-4" color="blue-grey-darken-3" dark
+    style="position: absolute; bottom: 0; width: 100%;">
+    <v-container class="px-0">
+      <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
+    </v-container>
+  </v-footer>
 </template>
 
 <style scoped>
@@ -272,7 +304,7 @@ const registerSocketEvent = () => {
 
 .task-section {
   flex: 1;
-  min-width: 400px;
+  min-width: 600px;
 }
 
 .task-title {
@@ -286,6 +318,8 @@ const registerSocketEvent = () => {
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
+  width: 100%;
+  min-width: 500px;
 }
 
 .task-header {
@@ -306,6 +340,16 @@ const registerSocketEvent = () => {
 
 .task-item:hover {
   background-color: #f9f9f9;
+}
+
+.task-finished {
+  width: 80px;
+  padding: 12px 16px; 
+  padding-left: 16px;
+}
+
+.task-finished-check {
+  margin-left: 25px;
 }
 
 .task-who,
@@ -388,6 +432,7 @@ const registerSocketEvent = () => {
   z-index: 1000;
 }
 
+
 .mx-auto {
   position: relative;
 }
@@ -399,5 +444,8 @@ const registerSocketEvent = () => {
   margin: 8px 0;
   color: #333;
   font-weight: 500;
+
+.task-filter {
+  font-size: 0.9rem;
 }
 </style>
