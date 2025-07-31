@@ -36,22 +36,29 @@ const chatList = reactive([])
 const toWho = ref("")
 
 const selectedDate = ref("")
-
 // ヒント表示用（2行だけ追加）
 const hintMessage = ref("")
 const showHint = ref(false)
 
+let hideFinishedTasks = ref()
 
 // タスクリスト用の変数を追加
 const taskList = reactive([
-  { who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
-  { who: "佐藤さん", when: "2025/07/31 14:30", what: "会議準備" },
-  { who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
-  { who: "", when: "2025/08/01 09:00", what: "レビュー実施" },
-  { who: "小林さん", when: "2025/06/31 10:00", what: "資料作成" },
-  { who: "植木さん", when: "2025/07/15 08:00", what: "会議準備" }
+  { finished: false, who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
+  { finished: false, who: "佐藤さん", when: "2025/07/31 14:30", what: "会議準備" },
+  { finished: false, who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
+  { finished: false, who: "", when: "2025/08/01 09:00", what: "レビュー実施" },
+  { finished: false, who: "小林さん", when: "2025/06/31 10:00", what: "資料作成" },
+  { finished: false, who: "植木さん", when: "2025/07/15 08:00", what: "会議準備" }
 ])
 
+// 未完了タスクリスト
+const notFinishedTaskList = reactive([])
+
+// 未完了タスクを該当リストに追加
+const addNotFinishedTask = () => {
+  notFinishedTaskList.splice(0, notFinishedTaskList.length, ...taskList.filter(task => !task.finished))
+}
 // #endregion
 
 // #region lifecycle
@@ -83,7 +90,15 @@ const onPublish = () => {
   if (toWho.value || selectedDate.value) {
     socket.emit("publishTask", {
       who: toWho.value,
-      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : selectedDate.value.replace("*",""),
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
+      what: chatContent.value
+    })
+  }
+  // タスクリストに追加
+  if (toWho.value || selectedDate.value) {
+    taskList.unshift({
+      who: toWho.value,
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
       what: chatContent.value
     })
   }
@@ -91,7 +106,6 @@ const onPublish = () => {
   chatContent.value=""
   toWho.value=""
   selectedDate.value=""
-  
 }
 
 // 退室メッセージをサーバに送信する
@@ -105,7 +119,6 @@ const onMemo = () => {
   chatList.unshift(`${userName.value}さんのメモ: ${chatContent.value}`)
   // 入力欄を初期化
   chatContent.value=""
-
 }
 // #endregion
 
@@ -203,43 +216,61 @@ const registerSocketEvent = () => {
 
       <!-- タスクリスト部分 -->
     <div class="task-section">
-      <h2 class="task-title">タスク</h2>
+        <h2 class="task-title">タスク</h2>
+        <label class="task-filter">
+          <input type="checkbox" v-model="hideFinishedTasks" @click="addNotFinishedTask">
+          未完了タスクのみを表示
+        </label>
       <div class="task-list">
         <div class="task-header">
+          <span class="task-finished">完了</span>
           <span class="task-who">担当者</span>
           <span class="task-when">期限</span>
           <span class="task-what">内容</span>
         </div>
-        <div
-          class="task-item"
-          v-for="(task, index) in taskList"
+      <div v-if="hideFinishedTasks">
+        <div class="task-item"
+          v-for="(task, index) in notFinishedTaskList"
           :key="index"
           :class="{
-            overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
-            me: task.who === userName}"
-        >
+          overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+          me: task.who === userName
+        }">
+          <input type="checkbox" v-model="task.finished">
           <span class="task-who">{{ task.who }}</span>
           <span class="task-when">{{ task.when }}</span>
           <span class="task-what">{{ task.what }}</span>
         </div>
       </div>
+      <div v-else>
+        <div class="task-item"
+          v-for="(task, index) in taskList"
+          :key="index"
+          :class="{
+          overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+          me: task.who === userName
+        }">
+          <input type="checkbox" v-model="task.finished">
+            <span class="task-who">{{ task.who }}</span>
+            <span class="task-when">{{ task.when }}</span>
+            <span class="task-what">{{ task.what }}</span>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+</div>
 
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
-  </div>
-  <v-footer
-    class="text-center py-4"
-    color="blue-grey-darken-3"
-    dark
-    style="position: absolute; bottom: 0; width: 100%;"
-    >
-      <v-container class="px-0">
-        <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
-      </v-container>
-    </v-footer>
+
+  <v-footer class="text-center py-4" color="blue-grey-darken-3" dark
+    style="position: absolute; bottom: 0; width: 100%;">
+    <v-container class="px-0">
+      <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
+    </v-container>
+  </v-footer>
 </template>
 
 <style scoped>
@@ -308,13 +339,22 @@ const registerSocketEvent = () => {
   background-color: #f9f9f9;
 }
 
-.task-who,
-.task-when,
-.task-what {
+.task-finished {
   padding: 12px 16px;
+  width: 50px;
   flex: 1;
-  border-right: 1px solid #eee;
+  padding-left: 16px;
 }
+
+.task-who {
+  padding: 12px 16px;
+  width: 100px;
+  flex: 1;
+  padding-left: 32px;
+}
+
+.task-when     { padding: 12px 16px; width: 160px; flex: 1; }
+.task-what     { padding: 12px 16px; flex: 1; }
 
 .task-who,
 .task-when,
@@ -375,7 +415,6 @@ const registerSocketEvent = () => {
 .task-item.me:hover {
   background-color: #5ab521;
 }
-
 .hint {
   position: fixed;
   top: 20px;
@@ -386,5 +425,9 @@ const registerSocketEvent = () => {
   padding: 10px 20px;
   border-radius: 20px;
   z-index: 1000;
+}
+
+.task-filter {
+  font-size: 0.9rem;
 }
 </style>
