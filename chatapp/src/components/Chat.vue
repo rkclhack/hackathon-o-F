@@ -99,6 +99,7 @@ const onReceivePublish = (data) => {
 // サーバから受信したタスクを画面上に表示する
 const onReceiveTask = (data) => {
   taskList.unshift(data)
+  sortByWhen()
 }
 // #endregion
 
@@ -131,7 +132,7 @@ const registerSocketEvent = () => {
   // タスクリストをソート
   const sortByWhen = () => {
     // 期限を昇順にソート
-    this.taskList.sort( (a, b) => {
+    taskList.sort( (a, b) => {
       if(a.when < b.when) return -1;
       if(a.when > b.when) return 1;
       return 0;
