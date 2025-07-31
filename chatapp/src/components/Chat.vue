@@ -50,8 +50,6 @@ const onPublish = () => {
       what: chatContent.value
     })
   }
-  // 投稿内容を画面上に表示
-  chatList.unshift(`${userName.value}さん: ${chatContent.value}`)
   // タスクリストに追加
   if (toWho.value || selectedDate.value) {
     taskList.unshift({
