@@ -13,6 +13,13 @@ const socket = socketManager.getInstance()
 // #region reactive variable
 const chatContent = ref("")
 const chatList = reactive([])
+// タスクリスト用の変数を追加
+const taskList = reactive([
+  { who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
+  { who: "佐藤さん", when: "2025/07/31 14:30", what: "会議準備" },
+  { who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
+  { who: "", when: "2025/08/01 09:00", what: "レビュー実施" }
+])
 // #endregion
 
 // #region lifecycle
@@ -87,19 +94,40 @@ const registerSocketEvent = () => {
 <template>
   <div class="mx-auto my-5 px-4">
     <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
-    <div class="mt-10">
-      <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
-      <div class="mt-5">
-        <button class="button-normal" @click="onPublish">投稿</button>
-        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+    <div class="content-container">
+      <!-- チャット部分 -->
+      <div class="chat-section">
+        <p>ログインユーザ：{{ userName }}さん</p>
+        <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
+        <div class="mt-5">
+          <button class="button-normal" @click="onPublish">投稿</button>
+          <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+        </div>
+        <div class="mt-5" v-if="chatList.length !== 0">
+          <ul>
+            <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
+          </ul>
+        </div>
       </div>
-      <div class="mt-5" v-if="chatList.length !== 0">
-        <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
-        </ul>
+
+      <!-- タスクリスト部分 -->
+      <div class="task-section">
+        <h2 class="task-title">タスク</h2>
+        <div class="task-list">
+          <div class="task-header">
+            <span class="task-who">担当者</span>
+            <span class="task-when">期限</span>
+            <span class="task-what">内容</span>
+          </div>
+          <div class="task-item" v-for="(task, index) in taskList" :key="index">
+            <span class="task-who">{{ task.who }}</span>
+            <span class="task-when">{{ task.when }}</span>
+            <span class="task-what">{{ task.what }}</span>
+          </div>
+        </div>
       </div>
     </div>
+
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
@@ -111,8 +139,83 @@ const registerSocketEvent = () => {
   text-decoration: none;
 }
 
+.content-container {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.chat-section {
+  flex: 1;
+}
+
+.task-section {
+  flex: 1;
+  min-width: 400px;
+}
+
+.task-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.task-list {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.task-header {
+  display: flex;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+}
+
+.task-item {
+  display: flex;
+  border-bottom: 1px solid #eee;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-item:hover {
+  background-color: #f9f9f9;
+}
+
+.task-who,
+.task-when,
+.task-what {
+  padding: 12px 16px;
+  flex: 1;
+  border-right: 1px solid #eee;
+}
+
+.task-who,
+.task-when,
+.task-what:last-child {
+  border-right: none;
+}
+
+.task-who {
+  min-width: 100px;
+}
+
+.task-when {
+  min-width: 140px;
+}
+
+.task-what {
+  min-width: 160px;
+}
+
 .area {
-  width: 500px;
+  width: 100%;
+  max-width: 500px;
   border: 1px solid #000;
   margin-top: 8px;
 }
