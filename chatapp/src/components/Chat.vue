@@ -68,7 +68,9 @@ const onPublish = () => {
     }
   }
   console.log(selectedDate.value)
-  socket.emit("publishEvent", `${userName.value}さん: ${chatContent.value}`)
+  // @担当者名を付けた投稿メッセージを作成
+  const messageWithTo = toWho.value ? `@${toWho.value} ${chatContent.value}` : chatContent.value
+  socket.emit("publishEvent", `${userName.value}さん: ${messageWithTo}`)
   //いつの誰に向けてのメッセージかを追加
   if (toWho.value || selectedDate.value) {
     socket.emit("publishTask", {
