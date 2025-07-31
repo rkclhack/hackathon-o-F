@@ -217,7 +217,7 @@ const registerSocketEvent = () => {
       <!-- タスクリスト部分 -->
     <div class="task-section">
         <h2 class="task-title">タスク</h2>
-        <label class="task-filter">
+        <label>
           <input type="checkbox" v-model="hideFinishedTasks" @click="addNotFinishedTask">
           未完了タスクのみを表示
         </label>
@@ -228,38 +228,26 @@ const registerSocketEvent = () => {
           <span class="task-when">期限</span>
           <span class="task-what">内容</span>
         </div>
-      <div v-if="hideFinishedTasks">
-        <div class="task-item"
-          v-for="(task, index) in notFinishedTaskList"
-          :key="index"
-          :class="{
-          overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
-          me: task.who === userName
-        }">
-          <input type="checkbox" v-model="task.finished">
-          <span class="task-who">{{ task.who }}</span>
-          <span class="task-when">{{ task.when }}</span>
-          <span class="task-what">{{ task.what }}</span>
+        <div v-if="hideFinishedTasks">
+          <div class="task-item" v-for="(task, index) in notFinishedTaskList" :key="index">
+           <input type="checkbox" v-model="task.finished">
+           <span class="task-who">{{ task.who }}</span>
+           <span class="task-when">{{ task.when }}</span>
+           <span class="task-what">{{ task.what }}</span>
+          </div>
         </div>
-      </div>
-      <div v-else>
-        <div class="task-item"
-          v-for="(task, index) in taskList"
-          :key="index"
-          :class="{
-          overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
-          me: task.who === userName
-        }">
-          <input type="checkbox" v-model="task.finished">
-            <span class="task-who">{{ task.who }}</span>
-            <span class="task-when">{{ task.when }}</span>
-            <span class="task-what">{{ task.what }}</span>
+        <div v-else>
+          <div class="task-item" v-for="(task, index) in taskList" :key="index">
+           <input type="checkbox" v-model="task.finished">
+           <span class="task-who">{{ task.who }}</span>
+           <span class="task-when">{{ task.when }}</span>
+           <span class="task-what">{{ task.what }}</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-</div>
+    </div>
+    </div>
 
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
@@ -303,7 +291,7 @@ const registerSocketEvent = () => {
 
 .task-section {
   flex: 1;
-  min-width: 400px;
+  min-width: 500px;
 }
 
 .task-title {
@@ -317,6 +305,8 @@ const registerSocketEvent = () => {
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
+  width: 100%;
+  min-width: 500px;
 }
 
 .task-header {
@@ -340,21 +330,22 @@ const registerSocketEvent = () => {
 }
 
 .task-finished {
-  padding: 12px 16px;
-  width: 50px;
-  flex: 1;
+  width: 80px;
+  padding: 12px 16px; 
   padding-left: 16px;
 }
 
-.task-who {
-  padding: 12px 16px;
-  width: 100px;
-  flex: 1;
-  padding-left: 32px;
+.task-finished-check {
+  margin-left: 25px;
 }
 
-.task-when     { padding: 12px 16px; width: 160px; flex: 1; }
-.task-what     { padding: 12px 16px; flex: 1; }
+.task-who,
+.task-when,
+.task-what {
+  padding: 12px 16px;
+  flex: 1;
+  border-right: 1px solid #eee;
+}
 
 .task-who,
 .task-when,
@@ -415,18 +406,6 @@ const registerSocketEvent = () => {
 .task-item.me:hover {
   background-color: #5ab521;
 }
-.hint {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #667eea;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
-  z-index: 1000;
-}
-
 .task-filter {
   font-size: 0.9rem;
 }
