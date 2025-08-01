@@ -37,23 +37,34 @@ const onEnter = () => {
 </script>
 
 <template>
-  <div style="text-align: center;max-height: 100vh;" class="pt-10">
-    <h1 class="text-h3 font-weight-medium">タスカル</h1>
-    <v-form @submit.prevent="onEnter">
-      <div class="mt-10">
-        <v-text-field clearable label="名前" variant="outlined" class="user-name-text" v-model="inputUserName" style="width: 200px; display: inline-block; padding: 10px;"/>
-      </div>
-        <v-btn type="submit" class="button-normal">入室する</v-btn>
-    </v-form>
+  <div class="d-flex flex-column justify-center align-center h-screen bg-grey-lighten-3">
+    <v-card
+      class="pa-10 d-flex flex-column align-center"
+      width="400"
+      elevation="8"
+    >
+      <h1 class="text-h4 font-weight-bold mb-6">タスカル</h1>
+      <v-form @submit.prevent="onEnter">
+        <v-text-field
+          clearable
+          label="名前"
+          variant="outlined"
+          class="user-name-text mb-4"
+          v-model="inputUserName"
+          style="width: 250px"
+        />
+        <v-btn type="submit" block class="button-normal" color="primary">入室する</v-btn>
+      </v-form>
+    </v-card>
     
     <v-footer
-    class="text-center py-4"
-    color="blue-grey-darken-3"
-    dark
-    style="position: absolute; bottom: 0; width: 100%;"
+      class="text-center py-4"
+      color="blue-grey-darken-3"
+      dark
+      style="position: fixed; bottom: 0; width: 100%;"
     >
-      <v-container class="px-0">
-        <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
+      <v-container>
+        <p class="text-caption">© 2025 Team-o-f</p>
       </v-container>
     </v-footer>
   </div>
