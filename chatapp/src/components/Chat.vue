@@ -93,14 +93,6 @@ const onPublish = () => {
       when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : selectedDate.value.replace("*",""),
     })
   }
-  // タスクリストに追加
-  if (toWho.value || selectedDate.value) {
-    taskList.unshift({
-      who: toWho.value,
-      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : "",
-      what: chatContent.value
-    })
-  }
   // 入力欄を初期化
   chatContent.value=""
   toWho.value=""
@@ -195,8 +187,8 @@ const registerSocketEvent = () => {
         <p>ログインユーザ：{{ userName }}さん</p>
         <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
         <div class="mt-5">
-          <button class="button-normal" @click="onPublish">投稿</button>
-          <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+          <button class="button-normal px-10 py-2 bg-gray" @click="onPublish">投稿</button>
+          <button class="button-normal px-10 py-2 util-ml-8px bg-gray" @click="onMemo">メモ</button>
         </div>
         <div class="mt-5">
         <input
@@ -267,7 +259,7 @@ const registerSocketEvent = () => {
     </router-link>
 
   <v-footer class="text-center py-4" color="blue-grey-darken-3" dark
-    style="position: absolute; bottom: 0; width: 100%;">
+    style="position: fixed; bottom: 0; width: 100%;">
     <v-container class="px-0">
       <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
     </v-container>
@@ -441,7 +433,6 @@ const registerSocketEvent = () => {
   position: absolute;
   top: 0;
   right: 100px;
-  margin: 8px 0;
   color: #333;
   font-weight: 500;
 }
