@@ -39,7 +39,7 @@ const onEnter = () => {
 <template>
   <div class="d-flex flex-column justify-center align-center h-screen bg-grey-lighten-3">
     <v-card
-      class="pa-10 d-flex flex-column align-center"
+      class="pa-12 d-flex flex-column align-center"
       width="400"
       elevation="8"
     >
