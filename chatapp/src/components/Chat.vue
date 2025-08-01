@@ -44,12 +44,12 @@ let hideFinishedTasks = ref()
 
 // タスクリスト用の変数を追加
 const taskList = reactive([
-  { finished: false, who: "田中さん", when: "2025/07/31 10:00", what: "資料作成" },
-  { finished: false, who: "佐藤さん", when: "2025/07/31 14:30", what: "会議準備" },
-  { finished: false, who: "鈴木さん", when: "2025/08/01 09:00", what: "レビュー実施" },
-  { finished: false, who: "", when: "2025/08/01 09:00", what: "レビュー実施" },
-  { finished: false, who: "小林さん", when: "2025/06/31 10:00", what: "資料作成" },
-  { finished: false, who: "植木さん", when: "2025/07/15 08:00", what: "会議準備" }
+  { finished: false, who: "田中", when: "2025/07/31 10:00", what: "資料作成" },
+  { finished: false, who: "佐藤", when: "2025/08/03 14:30", what: "会議準備" },
+  { finished: false, who: "鈴木", when: "", what: "レビュー実施" },
+  { finished: false, who: "", when: "2025/08/13 23:59", what: "レビュー実施" },
+  { finished: false, who: "小林", when: "2025/06/31 10:00", what: "資料作成" },
+  { finished: false, who: "植木", when: "2025/07/15 08:00", what: "会議準備" }
 ])
 
 // 未完了タスクリスト
@@ -64,6 +64,9 @@ const addNotFinishedTask = () => {
 // #region lifecycle
 onMounted(() => {
   registerSocketEvent()
+  setTimeout(() => {
+    sortByWhen();
+  }, 1);
 })
 // #endregion
 
@@ -82,7 +85,7 @@ const onPublish = () => {
       return
     }
   }
-  console.log(selectedDate.value)
+  // console.log(selectedDate.value)
   // @担当者名を付けた投稿メッセージを作成
   const messageWithTo = toWho.value ? `@${toWho.value} ${chatContent.value}` : chatContent.value
   socket.emit("publishEvent", `${userName.value}さん: ${messageWithTo}`)
@@ -91,6 +94,7 @@ const onPublish = () => {
     socket.emit("publishTask", {
       who: toWho.value,
       when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : selectedDate.value.replace("*",""),
+      what: chatContent.value
     })
   }
   // 入力欄を初期化
