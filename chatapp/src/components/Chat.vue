@@ -444,6 +444,7 @@ const registerSocketEvent = () => {
   margin: 8px 0;
   color: #333;
   font-weight: 500;
+}
 
 .task-filter {
   font-size: 0.9rem;
