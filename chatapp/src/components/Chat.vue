@@ -9,54 +9,134 @@ const userName = inject("userName")
 // #region local variable
 const socket = socketManager.getInstance()
 // #endregion
+const minDateTime = ref(new Date().toISOString().slice(0, 16))
+
+function getJstDatetimeLocal() {
+  const now = new Date()
+  now.setSeconds(0)
+  now.setMilliseconds(0)
+
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hour = String(now.getHours()).padStart(2, '0')
+  const minute = String(now.getMinutes()).padStart(2, '0')
+
+  return `${year}-${month}-${day}T${hour}:${minute}`
+}
+
+const jstDatetime = getJstDatetimeLocal()
+console.log(jstDatetime) // 例: 2025-07-31T16:13
 
 // #region reactive variable
 const chatContent = ref("")
+const taskContent = ref("")
 const chatList = reactive([])
+
+const toWho = ref("")
+
+const selectedDate = ref("")
+// ヒント表示用（2行だけ追加）
+const hintMessage = ref("")
+const showHint = ref(false)
+
+let hideFinishedTasks = ref()
+
+// タスクリスト用の変数を追加
+const taskList = reactive([
+  { finished: false, who: "田中", when: "2025/07/31 10:00", what: "資料作成" },
+  { finished: false, who: "佐藤", when: "2025/08/03 14:30", what: "会議準備" },
+  { finished: false, who: "鈴木", when: "", what: "レビュー実施" },
+  { finished: false, who: "", when: "2025/08/13 23:59", what: "レビュー実施" },
+  { finished: false, who: "小林", when: "2025/06/31 10:00", what: "資料作成" },
+  { finished: false, who: "植木", when: "2025/07/15 08:00", what: "会議準備" }
+])
+
+// 未完了タスクリスト
+const notFinishedTaskList = reactive([])
+
+// 未完了タスクを該当リストに追加
+const addNotFinishedTask = () => {
+  notFinishedTaskList.splice(0, notFinishedTaskList.length, ...taskList.filter(task => !task.finished))
+}
 // #endregion
 
 // #region lifecycle
 onMounted(() => {
   registerSocketEvent()
+  setTimeout(() => {
+    sortByWhen();
+  }, 1);
 })
 // #endregion
 
 // #region browser event handler
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-
+  if(!chatContent.value) {
+    hintMessage.value = "投稿内容を入力してください"
+    showHint.value = true
+    setTimeout(() => showHint.value = false, 3000)
+    return
+  }
+  if (selectedDate.value) {
+    if(selectedDate.value < jstDatetime) {
+      alert("現在時刻以降を選択してください")
+      return
+    }
+  }
+  // console.log(selectedDate.value)
+  // @担当者名を付けた投稿メッセージを作成
+  const messageWithTo = toWho.value ? `@${toWho.value} ${chatContent.value}` : chatContent.value
+  socket.emit("publishEvent", `${userName.value}さん: ${messageWithTo}`)
+  //いつの誰に向けてのメッセージかを追加
+  if (toWho.value || selectedDate.value) {
+    socket.emit("publishTask", {
+      who: toWho.value,
+      when: selectedDate.value ? selectedDate.value.replace('T', ' ').replace(/-/g, '/') : selectedDate.value.replace("*",""),
+      what: chatContent.value
+    })
+  }
   // 入力欄を初期化
-
+  chatContent.value=""
+  toWho.value=""
+  selectedDate.value=""
 }
 
 // 退室メッセージをサーバに送信する
 const onExit = () => {
-
+  socket.emit("exitEvent", `${userName.value}さんが退出しました。`)
 }
 
 // メモを画面上に表示する
 const onMemo = () => {
   // メモの内容を表示
-
+  chatList.unshift(`${userName.value}さんのメモ: ${chatContent.value}`)
   // 入力欄を初期化
-
+  chatContent.value=""
 }
 // #endregion
 
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  chatList.push()
+  chatList.unshift(data)
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
 const onReceiveExit = (data) => {
-  chatList.push()
+  chatList.unshift(data)
 }
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  chatList.push()
+  chatList.unshift(data)
+}
+
+// サーバから受信したタスクを画面上に表示する
+const onReceiveTask = (data) => {
+  taskList.unshift(data)
+  sortByWhen()
 }
 // #endregion
 
@@ -65,51 +145,238 @@ const onReceivePublish = (data) => {
 const registerSocketEvent = () => {
   // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
-
+    onReceiveEnter(data)
   })
 
   // 退室イベントを受け取ったら実行
   socket.on("exitEvent", (data) => {
-
+    onReceiveExit(data)
   })
 
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
+    onReceivePublish(data)
+  })
 
+  // タスク追加イベントを受け取ったら実行
+  socket.on("publishTask", (data) => {
+    onReceiveTask(data)
+    sortByWhen()
   })
 }
+
+  // タスクリストをソート
+  const sortByWhen = () => {
+    // 期限を昇順にソート
+    taskList.sort( (a, b) => {
+      if(a.when === "" && b.when !== "") return 1;
+      if(a.when !== "" && b.when === "") return -1;
+      if(a.when === "" && b.when === "") return 0;
+      if(a.when < b.when) return -1;
+      if(a.when > b.when) return 1;
+      return 0;
+    });
+  }
 // #endregion
 </script>
 
 <template>
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
-    <div class="mt-10">
-      <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
-      <div class="mt-5">
-        <button class="button-normal">投稿</button>
-        <button class="button-normal util-ml-8px">メモ</button>
+  <div class="mx-auto my-5 px-10">
+    <h1 class="text-h3 font-weight-medium">タスカル</h1>
+    <div v-if="showHint" class="hint">{{ hintMessage }}</div>
+    <div class="content-all">
+    <div class="content-container">
+      <!-- チャット部分 -->
+      <div class="chat-section">
+        <p>ログインユーザ：{{ userName }}さん</p>
+        <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
+        <div class="mt-5">
+          <button class="button-normal px-10 py-2 bg-gray" @click="onPublish">投稿</button>
+          <button class="button-normal px-10 py-2 util-ml-8px bg-gray" @click="onMemo">メモ</button>
+        </div>
+        <div class="mt-5">
+        <input
+          class="who-and-When-Input"
+          v-model="toWho"
+          placeholder="誰に">
+        <input class="who-and-When-Input" type="datetime-local" v-model="selectedDate" :min="minDateTime">
       </div>
-      <div class="mt-5" v-if="chatList.length !== 0">
-        <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
-        </ul>
+        <div class="mt-5" v-if="chatList.length !== 0">
+          <ul>
+            <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
+          </ul>
+        </div>
       </div>
     </div>
+
+      <!-- タスクリスト部分 -->
+    <div class="task-section">
+        <h2 class="task-title">タスク</h2>
+        <label>
+          <input type="checkbox" v-model="hideFinishedTasks" @click="addNotFinishedTask">
+          未完了タスクのみを表示
+        </label>
+      <div class="task-list">
+        <div class="task-header">
+          <span class="task-finished">完了</span>
+          <span class="task-who">担当者</span>
+          <span class="task-when">期限</span>
+          <span class="task-what">内容</span>
+        </div>
+        <div v-if="hideFinishedTasks">
+          <div
+            class="task-item"
+            v-for="(task, index) in notFinishedTaskList"
+            :key="index"
+            :class="{
+              overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+              me: task.who === userName}"
+          >
+           <input type="checkbox" v-model="task.finished">
+           <span class="task-who">{{ task.who }}</span>
+           <span class="task-when">{{ task.when }}</span>
+           <span class="task-what">{{ task.what }}</span>
+          </div>
+        </div>
+        <div v-else>
+          <div
+            class="task-item"
+            v-for="(task, index) in taskList"
+            :key="index"
+            :class="{
+              overdue: task.when && new Date(task.when.replace(/\//g, '-').replace(' ', 'T')) < new Date(Date.now() - 60000),
+              me: task.who === userName}"
+          >
+           <input type="checkbox" v-model="task.finished">
+           <span class="task-who">{{ task.who }}</span>
+           <span class="task-when">{{ task.when }}</span>
+           <span class="task-what">{{ task.what }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    </div>
+
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
-  </div>
+
+  <v-footer class="text-center py-4" color="blue-grey-darken-3" dark
+    style="position: fixed; bottom: 0; width: 100%;">
+    <v-container class="px-0">
+      <p class="text-caption" style="margin: 0 auto;">© 2025 Team-o-f</p>
+    </v-container>
+  </v-footer>
 </template>
 
 <style scoped>
 .link {
   text-decoration: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.content-all {
+  display: flex;
+  flex-direction: row;
+  gap: 10vw;
+  margin-top: 60px;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  margin-top: 20px;
+  flex: 1;
+  max-width: 50%;
+}
+
+.chat-section {
+  flex: 1;
+}
+
+.task-section {
+  flex: 1;
+  min-width: 600px;
+}
+
+.task-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.task-list {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+  min-width: 500px;
+}
+
+.task-header {
+  display: flex;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+}
+
+.task-item {
+  display: flex;
+  border-bottom: 1px solid #eee;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-item:hover {
+  background-color: #f9f9f9;
+}
+
+.task-finished {
+  width: 80px;
+  padding: 12px 16px; 
+  padding-left: 16px;
+}
+
+.task-finished-check {
+  margin-left: 25px;
+}
+
+.task-who,
+.task-when,
+.task-what {
+  padding: 12px 16px;
+  flex: 1;
+  border-right: 1px solid #eee;
+}
+
+.task-who,
+.task-when,
+.task-what:last-child {
+  border-right: none;
+}
+
+.task-who {
+  min-width: 100px;
+}
+
+.task-when {
+  min-width: 140px;
+}
+
+.task-what {
+  min-width: 160px;
 }
 
 .area {
-  width: 500px;
+  width: 100%;
+  max-width: 500px;
   border: 1px solid #000;
   margin-top: 8px;
 }
@@ -125,5 +392,56 @@ const registerSocketEvent = () => {
 .button-exit {
   color: #000;
   margin-top: 8px;
+}
+
+.who-and-When-Input {
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 3px;
+}
+
+.task-item.overdue {
+  color: #f44336;
+}
+
+.task-item.overdue:hover {
+  color: #d32f2f;
+}
+
+.task-item.me {
+  background-color: #7ff436;
+}
+
+.task-item.me:hover {
+  background-color: #5ab521;
+}
+
+.hint {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #667eea;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  z-index: 1000;
+}
+
+
+.mx-auto {
+  position: relative;
+}
+
+.chat-section p {
+  position: absolute;
+  top: 0;
+  right: 100px;
+  color: #333;
+  font-weight: 500;
+}
+
+.task-filter {
+  font-size: 0.9rem;
 }
 </style>
